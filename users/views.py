@@ -1,16 +1,21 @@
-from rest_framework.views import APIView, Request, Response, status
+# from rest_framework.views import APIView, Request, Response, status
 from .models import User
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from .serializers import UserSerializer
-from django.shortcuts import get_object_or_404
+# from django.shortcuts import get_object_or_404
 from .permissions import IsAccountOwner
+# from utils.common_views import PostCommonView, GetCommonView, PostGetCommonView
+# from utils.detail_common_views import OnlyGetDetailView, OnlyPatchDetailView, OnlyDeleteDetailView
+from rest_framework import generics
 
-
-class UserView(APIView):
-    def post(self, request: Request) -> Response:
-        """
-        Registro de usuários
-        """
+class UserView(generics.ListCreateAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    # view_serializer = UserSerializer
+    # view_query_set = User.objects.all()
+    
+   
+"""
         serializer = UserSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -18,15 +23,37 @@ class UserView(APIView):
 
         return Response(serializer.data, status.HTTP_201_CREATED)
 
+    def get(self, request: Request)-> Response:
+   
+        users = User.objects.all()
 
-class UserDetailView(APIView):
+        serializer = UserSerializer(users, many=True)
+
+        return Response(serializer.data)
+"""
+
+
+
+class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAccountOwner]
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+    
+    lookup_url_kwarg = "pk"    
+    
+"""
+    # view_serializer = UserSerializer
+    # view_query_set = User.objects.all()
 
-    def get(self, request: Request, pk: int) -> Response:
-        """
-        Obtençao de usuário
-        """
+    
+    # url_param_name = "pk"
+
+"""
+    
+"""
+   def get(self, request: Request, pk: int) -> Response:
+  
         user = get_object_or_404(User, pk=pk)
 
         self.check_object_permissions(request, user)
@@ -36,9 +63,7 @@ class UserDetailView(APIView):
         return Response(serializer.data)
 
     def patch(self, request: Request, pk: int) -> Response:
-        """
-        Atualização de usuário
-        """
+  
         user = get_object_or_404(User, pk=pk)
 
         self.check_object_permissions(request, user)
@@ -50,9 +75,7 @@ class UserDetailView(APIView):
         return Response(serializer.data)
 
     def delete(self, request: Request, pk: int) -> Response:
-        """
-        Deleçao de usuário
-        """
+   
         user = get_object_or_404(User, pk=pk)
 
         self.check_object_permissions(request, user)
@@ -60,3 +83,4 @@ class UserDetailView(APIView):
         user.delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+"""

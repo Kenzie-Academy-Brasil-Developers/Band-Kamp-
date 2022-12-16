@@ -6,16 +6,30 @@ from .models import Song
 from rest_framework.pagination import PageNumberPagination
 from .serializers import SongSerializer
 from albums.models import Album
+from rest_framework import generics
 
-
-class SongView(APIView, PageNumberPagination):
+class SongView(generics.ListCreateAPIView, PageNumberPagination):
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
+    serializer_class = SongSerializer
+    queryset = Song.objects.all()
+
+
+
+    def perform_create(self, serializer):
+        album_id = self.kwargs["pk"]
+
+        album_obj = get_object_or_404(Album, pk=album_id)
+
+        self.check_object_permissions(self.request, album_obj)
+        
+        serializer.save(album=album_obj)
+
+
+"""
     def get(self, request, pk):
-        """
-        Obtençao de musicas
-        """
+       
         songs = Song.objects.filter(album_id=pk)
 
         result_page = self.paginate_queryset(songs, request)
@@ -24,9 +38,7 @@ class SongView(APIView, PageNumberPagination):
         return self.get_paginated_response(serializer.data)
 
     def post(self, request, pk):
-        """
-        Criaçao de musica
-        """
+        
         album = get_object_or_404(Album, pk=pk)
 
         serializer = SongSerializer(data=request.data)
@@ -34,3 +46,4 @@ class SongView(APIView, PageNumberPagination):
         serializer.save(album=album)
 
         return Response(serializer.data, status.HTTP_201_CREATED)
+"""

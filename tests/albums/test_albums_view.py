@@ -20,6 +20,7 @@ class AlbumViewTest(APITestCase):
         response = self.client.get(self.BASE_URL)
         resulted_data = response.json()
         resulted_pagination_keys = set(resulted_data.keys())
+        # ipdb.set_trace()
         expected_pagination_keys = {"count", "next", "previous", "results"}
         msg = "Verifique se a paginação está sendo feita corretamente"
         with self.subTest():
